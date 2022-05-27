@@ -1,26 +1,13 @@
-import os
-from base64 import b64encode
-
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+from spotify import Spotify
 
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+spotify = Spotify()
 
-b64string = "{}:{}".format(CLIENT_ID, CLIENT_SECRET).encode("ASCII")
-b64string = b64encode(b64string)
-b64string = bytes.decode(b64string)
-
-url = "https://accounts.spotify.com/api/token"
+url = "https://api.spotify.com/v1/playlists/{}/tracks"
 headers = {
-    "Authorization": "Basic {}".format(b64string)
+    "Authorization": "Bearer {}".format(spotify.get_access_token()),
+    "grant_type": "access_token"
 }
-data = {
-    "grant_type": "client_credentials"
-}
-
-response = requests.post(url, headers=headers, data=data)
-
+response = requests.get(url, headers=headers)
 print(response.text)
