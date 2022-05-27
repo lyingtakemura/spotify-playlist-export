@@ -39,7 +39,10 @@ class Spotify:
 
         return result["access_token"]
 
-    def get_playlist(self, playlist_id=""):
+    def get_playlist(self, playlist_url):
+        playlist_id = playlist_url.split("/playlist/")[1]
+        playlist_id = playlist_id.split("?")[0]
+
         url = "{}/playlists/{}/tracks".format(self.url, playlist_id)
         headers = {
             "Authorization": "Bearer {}".format(self.get_access_token()),
