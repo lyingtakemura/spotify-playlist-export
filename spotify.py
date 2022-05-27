@@ -9,7 +9,7 @@ load_dotenv()
 
 class Spotify:
     def __init__(self):
-        self.url = "https://accounts.spotify.com/api/token"
+        self.url = "https://api.spotify.com/v1"
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
 
@@ -30,6 +30,20 @@ class Spotify:
             "grant_type": "client_credentials"
         }
 
-        response = requests.post(self.url, headers=headers, data=data)
+        response = requests.post(
+            "https://accounts.spotify.com/api/token",
+            headers=headers,
+            data=data
+        )
         result = response.json()
+
         return result["access_token"]
+
+    def get_playlist(self, playlist_id=""):
+        url = "{}/playlists/{}/tracks".format(self.url, playlist_id)
+        headers = {
+            "Authorization": "Bearer {}".format(self.get_access_token()),
+            "grant_type": "access_token"
+        }
+        response = requests.get(url, headers=headers)
+        return response.text
