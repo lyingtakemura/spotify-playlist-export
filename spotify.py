@@ -1,3 +1,4 @@
+import csv
 import os
 from base64 import b64encode
 
@@ -49,4 +50,20 @@ class Spotify:
             "grant_type": "access_token"
         }
         response = requests.get(url, headers=headers)
-        return response.text
+        return response.json()
+
+    def export_to_csv(self, playlist):
+        with open("playlist.csv", "w") as file:
+            writer = csv.writer(file)
+
+            for item in playlist["items"]:
+                name = item["track"]["name"]
+
+                artists = []
+                for artist in item["track"]["artists"]:
+                    artists.append(artist["name"])
+                artists = ", ".join(artists)
+
+                album = item["track"]["album"]["name"]
+
+                writer.writerow([name, artists, album])
