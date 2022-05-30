@@ -16,8 +16,8 @@ class Spotify:
 
     def get_access_token(self):
         """
-        encode client_id and client_secret to base64 string
-        request spotify api access_token by resulted base64 string
+        - encode client_id and client_secret to base64 string
+        - request spotify api access_token by resulted base64 string
         """
         b64string = "{}:{}".format(self.client_id, self.client_secret)
         b64string = b64string.encode("ASCII")
@@ -41,6 +41,14 @@ class Spotify:
         return result["access_token"]
 
     def get_playlist(self, playlist_url):
+        """
+        - parse playlist_id from provided playlist_url
+        - construct initial request url
+        - request first 100 songs from playlist and check if response attribute
+        'next' has link to the next part of playlist
+        - if 'next' is None: end of playlist reached, exit loop
+        """
+        result = []
         playlist_id = playlist_url.split("/playlist/")[1]
         playlist_id = playlist_id.split("?")[0]
 
@@ -49,14 +57,23 @@ class Spotify:
             "Authorization": "Bearer {}".format(self.get_access_token()),
             "grant_type": "access_token"
         }
-        response = requests.get(url, headers=headers)
-        return response.json()
+
+        while True:
+            response = requests.get(url, headers=headers).json()
+            result.extend(response["items"])
+
+            if response["next"] is None:
+                break
+            else:
+                url = response["next"]
+
+        return result
 
     def export_to_csv(self, playlist):
         with open("playlist.csv", "w") as file:
             writer = csv.writer(file)
 
-            for item in playlist["items"]:
+            for item in playlist:
                 name = item["track"]["name"]
 
                 artists = []
