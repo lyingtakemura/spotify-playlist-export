@@ -14,7 +14,7 @@ class Spotify:
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
 
-    def get_access_token(self):
+    def get_access_token(self) -> str:
         """
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
@@ -40,7 +40,7 @@ class Spotify:
 
         return result["access_token"]
 
-    def get_playlist(self, playlist_url):
+    def get_playlist(self, playlist_url: str) -> list:
         """
         - parse playlist_id from provided playlist_url
         - construct initial request url
@@ -69,7 +69,7 @@ class Spotify:
 
         return result
 
-    def export_to_csv(self, playlist):
+    def export_to_csv(self, playlist: list) -> None:
         with open("playlist.csv", "w") as file:
             writer = csv.writer(file)
 
