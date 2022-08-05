@@ -87,7 +87,5 @@ class Spotify:
 
     def __parse_playlist_id(self, playlist_url: str) -> str:
         playlist_id = playlist_url.split("/playlist/")[1]
-        print(playlist_id)
         playlist_id = playlist_id.split("?")[0]
-        print(playlist_id)
         return playlist_id
