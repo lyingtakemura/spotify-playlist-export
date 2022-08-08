@@ -14,8 +14,7 @@ class Spotify:
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
 
-
-    def get_playlist(self, playlist_url: str) -> list:
+    def get_playlist(self) -> list:
         """
         - parse playlist_id from provided playlist_url
         - construct initial request url
@@ -24,8 +23,11 @@ class Spotify:
         - if 'next' is None: end of playlist reached, exit loop
         """
         result = []
-        
-        url = "{}/playlists/{}/tracks".format(self.url, self.__parse_playlist_id(playlist_url))
+
+        url = "{}/playlists/{}/tracks".format(
+            self.url,
+            self.__parse_playlist_id()
+        )
         headers = {
             "Authorization": "Bearer {}".format(self.__get_access_token()),
             "grant_type": "access_token"
@@ -58,7 +60,6 @@ class Spotify:
 
                 writer.writerow([name, artists, album])
 
-
     def __get_access_token(self) -> str:
         """
         - encode client_id and client_secret to base64 string
@@ -85,7 +86,18 @@ class Spotify:
 
         return result["access_token"]
 
-    def __parse_playlist_id(self, playlist_url: str) -> str:
-        playlist_id = playlist_url.split("/playlist/")[1]
-        playlist_id = playlist_id.split("?")[0]
+    def __parse_playlist_id(self) -> str:
+        """
+        stay in the loop until provided input can be parsed for playlist id
+        """
+        playlist_id = None
+        while True:
+            try:
+                playlist_url = input("Enter playlist url: ")
+                playlist_id = playlist_url.split("/playlist/")[1]
+                playlist_id = playlist_id.split("?")[0]
+                break
+            except IndexError:
+                print("ERROR: Invalid playlist URL")
+
         return playlist_id
