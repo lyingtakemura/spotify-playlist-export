@@ -55,17 +55,20 @@ class Spotify:
                 # handle playlist with provided id not found
                 url = "{}/playlists/{}/tracks".format(self.url, playlist_id)
                 headers = {
-                    "Authorization": "Bearer {}".format(self.__get_access_token()),
+                    "Authorization": "Bearer {}".format(
+                        self.__get_access_token()
+                    ),
                     "grant_type": "access_token"
                 }
                 response = requests.get(url, headers=headers)
-                # raise HTTPError if response returned an unsuccessful status code
+                # raise HTTPError if response
+                # returned an unsuccessful status code
                 response.raise_for_status()
                 break
             except IndexError:
                 print("ERROR: Invalid playlist URL")
             except requests.HTTPError:
-                print("ERROR: Playlist with provided id not found")            
+                print("ERROR: Playlist with provided id not found")
 
         return playlist_id
 
