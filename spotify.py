@@ -10,7 +10,7 @@ load_dotenv()
 
 class Spotify:
     def __init__(self):
-        self.url = "https://api.spotify.com/v1"
+        self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
 
