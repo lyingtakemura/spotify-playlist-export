@@ -19,10 +19,7 @@ class Spotify:
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
         """
-        b64string = "{}:{}".format(self.client_id, self.client_secret)
-        b64string = b64string.encode("ASCII")
-        b64string = b64encode(b64string)
-        b64string = bytes.decode(b64string)
+        b64string = self._to_b64_string(self.client_id, self.client_secret)
 
         headers = {
             "Authorization": "Basic {}".format(b64string)
@@ -117,3 +114,10 @@ class Spotify:
                 album = item["track"]["album"]["name"]
 
                 writer.writerow([name, artists, album])
+
+    def _to_b64_string(self, client_id: str, client_secret: str) -> str:
+        b64string = "{}:{}".format(self.client_id, self.client_secret)
+        b64string = b64string.encode("ASCII")
+        b64string = b64encode(b64string)
+        b64string = bytes.decode(b64string)
+        return b64string
