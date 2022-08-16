@@ -3,17 +3,15 @@ from spotify import Spotify
 
 
 @pytest.fixture
-def spotify_object():
-    spotify = Spotify()
-    return spotify
+def spotify():
+    return Spotify()
 
 
-def test_spotify_object_setup(spotify_object):
-    assert spotify_object.url is not None
-    assert spotify_object.client_id is not None
-    assert spotify_object.client_secret is not None
+def test_spotify_object_setup(spotify):
+    assert spotify.url is not None
+    assert spotify.client_id is not None
+    assert spotify.client_secret is not None
 
 
-def test_to_b64_string(spotify_object):
-    assert spotify_object._to_b64_string("qq", "ww") == "OWIxZjI0ZGNlNjU1NGZlOTgyNWM1ZjNlMmFlYjhmZmU6ZDMyYTA0Y2FiNjdjNGRiOTk0YmI2ODY1NDYyZTcxOTk="
-
+def test_to_b64_string(spotify):
+    assert spotify._to_b64_string("qq", "ww") == "OWIxZjI0ZGNlNjU1NGZlOTgyNWM1ZjNlMmFlYjhmZmU6ZDMyYTA0Y2FiNjdjNGRiOTk0YmI2ODY1NDYyZTcxOTk="
