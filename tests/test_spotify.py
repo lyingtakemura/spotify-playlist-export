@@ -1,3 +1,5 @@
+from io import StringIO
+
 import pytest
 from spotify import Spotify
 
@@ -7,10 +9,19 @@ def spotify():
     return Spotify()
 
 
-def test_spotify_object_setup(spotify):
-    assert spotify.url is not None
-    assert spotify.client_id is not None
-    assert spotify.client_secret is not None
+urls = [
+        ("https://open.spotify.com/playlist/60S2Vw5q3DPjrYMbLezJa3?si=1658078b7f1846d4", "60S2Vw5q3DPjrYMbLezJa3"),
+        ("https://open.spotify.com/playlist/60S2Vw5q3DPjrYMbLezJa3", "60S2Vw5q3DPjrYMbLezJa3"),
+        ("https://open.spotify.com/playlist/00000000000000000", "00000000000000000"),
+        ("https://open.spotify.com/playlist/000000000?si=0000000000", "000000000")
+    ]
+
+
+@pytest.mark.parametrize("url, expected", urls)
+def test_parse_playlist_id(spotify, monkeypatch, url, expected):
+    playlist_url = StringIO(url)
+    monkeypatch.setattr('sys.stdin', playlist_url)
+    assert spotify._parse_playlist_id() == expected
 
 
 def test_to_b64_string(spotify):
