@@ -26,10 +26,10 @@ class Spotify:
 
         url = "{}/playlists/{}/tracks".format(
             self.url,
-            self.__find_playlist()
+            self._find_playlist()
         )
         headers = {
-            "Authorization": "Bearer {}".format(self.__get_access_token()),
+            "Authorization": "Bearer {}".format(self._get_access_token()),
             "grant_type": "access_token"
         }
 
@@ -87,7 +87,7 @@ class Spotify:
                 url = "{}/playlists/{}/tracks".format(self.url, playlist_id)
                 headers = {
                     "Authorization": "Bearer {}".format(
-                        self.__get_access_token()
+                        self._get_access_token()
                     ),
                     "grant_type": "access_token"
                 }
