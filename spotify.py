@@ -16,7 +16,7 @@ class Spotify:
         self.playlist_id = None
         self.access_token = None
 
-    def get_playlist(self) -> list:
+    def request_playlist_tracks(self) -> list:
         """
         - parse playlist_id from provided playlist_url
         - construct initial request url
@@ -72,7 +72,7 @@ class Spotify:
         self._request_access_token()
         while True:
             try:
-                # parse playlist id from input if not retry
+                # parse playlist id from input
                 playlist_url = input("ENTER PLAYLIST URL: ")
                 playlist_id = playlist_url.split("/playlist/")[1]
                 playlist_id = playlist_id.split("?")[0]
