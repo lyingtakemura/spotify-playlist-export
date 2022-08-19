@@ -13,6 +13,7 @@ class Spotify:
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
+        self.playlist_id = None
 
     def get_playlist(self) -> list:
         """
@@ -22,17 +23,19 @@ class Spotify:
         'next' has link to the next part of playlist
         - if 'next' is None: end of playlist reached, exit loop
         """
-        result = []
+
+        self._verify_playlist_id()
 
         url = "{}/playlists/{}/tracks".format(
             self.url,
-            self._find_playlist()
+            self.playlist_id
         )
         headers = {
             "Authorization": "Bearer {}".format(self._get_access_token()),
             "grant_type": "access_token"
         }
 
+        result = []
         while True:
             response = requests.get(url, headers=headers).json()
             result.extend(response["items"])
@@ -60,31 +63,36 @@ class Spotify:
 
                 writer.writerow([name, artists, album])
 
-    def _to_b64_string(self, client_id: str, client_secret: str) -> str:
-        b64string = "{}:{}".format(self.client_id, self.client_secret)
-        b64string = b64string.encode("ASCII")
-        b64string = b64encode(b64string)
-        b64string = bytes.decode(b64string)
-        return b64string
+    # def _to_b64_string(self, client_id: str, client_secret: str) -> str:
+    #     b64string = "{}:{}".format(self.client_id, self.client_secret)
+    #     b64string = b64string.encode("ASCII")
+    #     b64string = b64encode(b64string)
+    #     b64string = bytes.decode(b64string)
+    #     return b64string
 
-    def _parse_playlist_id(self):
-        # parse playlist id from input
-        playlist_url = input("ENTER PLAYLIST URL: ")
-        playlist_id = playlist_url.split("/playlist/")[1]
-        playlist_id = playlist_id.split("?")[0]
-        return playlist_id
+    # def _parse_playlist_id(self):
+    #     # parse playlist id from input
+    #     playlist_url = input("ENTER PLAYLIST URL: ")
+    #     playlist_id = playlist_url.split("/playlist/")[1]
+    #     playlist_id = playlist_id.split("?")[0]
+    #     return playlist_id
 
-    def _find_playlist(self) -> str:
+    def _verify_playlist_id(self) -> str:
         """
         stay in the loop until provided input can be parsed for playlist id
         then make api request to check if playlist with provided id exists
         """
-        playlist_id = None
         while True:
             try:
-                playlist_id = self._parse_playlist_id()
+                # parse playlist id from input
+                playlist_url = input("ENTER PLAYLIST URL: ")
+                playlist_id = playlist_url.split("/playlist/")[1]
+                playlist_id = playlist_id.split("?")[0]
+                self.playlist_id = playlist_id
                 # handle playlist with provided id not found
-                url = "{}/playlists/{}/tracks".format(self.url, playlist_id)
+                url = "{}/playlists/{}/tracks".format(
+                    self.url, self.playlist_id
+                )
                 headers = {
                     "Authorization": "Bearer {}".format(
                         self._get_access_token()
@@ -101,14 +109,15 @@ class Spotify:
             except requests.HTTPError:
                 print("ERROR: Playlist with provided id not found")
 
-        return playlist_id
-
     def _get_access_token(self) -> str:
         """
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
         """
-        b64string = self._to_b64_string(self.client_id, self.client_secret)
+        b64string = "{}:{}".format(self.client_id, self.client_secret)
+        b64string = b64string.encode("ASCII")
+        b64string = b64encode(b64string)
+        b64string = bytes.decode(b64string)
 
         headers = {
             "Authorization": "Basic {}".format(b64string)
