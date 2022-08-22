@@ -72,11 +72,7 @@ class Spotify:
         self._request_access_token()
         while True:
             try:
-                # parse playlist id from input
-                playlist_url = input("ENTER PLAYLIST URL: ")
-                playlist_id = playlist_url.split("/playlist/")[1]
-                playlist_id = playlist_id.split("?")[0]
-                self.playlist_id = playlist_id
+                self._parse_playlist_id()
                 # handle playlist with provided id not found
                 url = "{}/playlists/{}/tracks".format(
                     self.url, self.playlist_id
@@ -88,6 +84,7 @@ class Spotify:
                     "grant_type": "access_token"
                 }
                 response = requests.get(url, headers=headers)
+                print(response.status_code)
                 # raise HTTPError if response returned an error status code
                 response.raise_for_status()
                 break
@@ -121,3 +118,9 @@ class Spotify:
         result = response.json()
 
         self.access_token = result["access_token"]
+
+    def _parse_playlist_id(self) -> None:
+        playlist_url = input("ENTER PLAYLIST URL: ")
+        playlist_id = playlist_url.split("/playlist/")[1]
+        playlist_id = playlist_id.split("?")[0]
+        self.playlist_id = playlist_id
