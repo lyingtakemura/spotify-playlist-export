@@ -51,7 +51,7 @@ class Spotify:
         result = response.json()
         return result["access_token"]
 
-    def verify_playlist_id(self) -> None:
+    def get_playlist_by_url(self) -> None:
         """
         - stay in the loop until provided input can be parsed for playlist id
         - request spotify api for playlist with parsed id
