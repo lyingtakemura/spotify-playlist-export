@@ -13,8 +13,19 @@ playlist_urls = [
     ("https://open.spotify.com/playlist/60S2Vw5q3DPjrYMbLezJa3"),
 ]
 
+
 @pytest.mark.parametrize("url", playlist_urls)
 def test_get_playlist_by_url(spotify, mocker, url):
+    '''
+    - mock playlist url as user input
+    - invoke get_playlist_by_url on spotify object fixture to make api request
+    - set tracks total and their objects from response to spotify.playlist dict
+    - assert track objects have expected key in it
+    - assert playlist track objects quantity equals to expected total quantity
+    '''
     mocker.patch('builtins.input', lambda _: url)
     spotify.get_playlist_by_url()
-    assert "items" in spotify.playlist.keys()
+    for _ in spotify.playlist["items"]:
+        assert "track" in _.keys()
+
+    assert len(spotify.playlist["items"]) == spotify.playlist["total"]
