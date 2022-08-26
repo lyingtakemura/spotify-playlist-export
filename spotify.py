@@ -13,10 +13,13 @@ class Spotify:
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
-        self.playlist = None
+        self.playlist = {
+            "items": [],
+            "total": None
+        }
 
     @property
-    def headers(self):
+    def headers(self) -> dict:
         _ = {
             "Authorization": "Bearer {}".format(
                 self.access_token
@@ -26,7 +29,7 @@ class Spotify:
         return _
 
     @property
-    def access_token(self):
+    def access_token(self) -> str:
         """
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
@@ -51,58 +54,51 @@ class Spotify:
         result = response.json()
         return result["access_token"]
 
-    def get_playlist_by_url(self) -> None:
+    def get_playlist_by_url(self) -> dict:
         """
         - stay in the loop until provided input can be parsed for playlist id
         - request spotify api for playlist with parsed id
-        - if playlist found - set response json as spotify.playlist attribute
+        - if exists - save response object to 'result' variable
+        - check if playlist has link to 'next' part
+        - if 'next' is None: end of playlist reached, exit loop
         """
         while True:
             try:
                 playlist_url = input("ENTER PLAYLIST URL: ")
                 playlist_id = playlist_url.split("/playlist/")[1]
                 playlist_id = playlist_id.split("?")[0]
-                # handle playlist with provided id not found
+
                 url = "{}/playlists/{}/tracks/".format(
                     self.url, playlist_id
                 )
                 response = requests.get(url, headers=self.headers)
-                self.playlist = response.json()
 
-                # with open("temp.json", "w") as f:
-                # import json
-                #   q = json.dumps(self.playlist.keys(), indent=4)
-                #   f.writelines(self.playlist.keys())
-                
-                # raise HTTPError if response returned an error status code
-                response.raise_for_status()
+                # raise HTTPError if request failed
+                if not response.raise_for_status():
+                    playlist = response.json()
+
+                self.playlist["total"] = playlist["total"]
+                self.playlist["items"].extend(playlist["items"])
+
+                while True:
+                    if playlist["next"] is None:
+                        break
+                    else:
+                        playlist = requests.get(
+                            playlist["next"], headers=self.headers
+                        ).json()
+                        self.playlist["items"].extend(playlist["items"])
                 break
             except IndexError:
                 print("ERROR: Invalid playlist URL")
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
-    def parse_playlist_tracks(self) -> None:
-        """
-        - check if playlist has link to 'next' part
-        - if 'next' is None: end of playlist reached, exit loop
-        """
-        result = []
-        while True:
-            result.extend(self.playlist["items"])
-            if self.playlist["next"] is None:
-                break
-            else:
-                url = self.playlist["next"]
-                self.playlist = requests.get(url, headers=self.headers).json()
-
-        self.playlist = result
-
     def export_to_csv(self) -> None:
         with open("playlist.csv", "w") as file:
             writer = csv.writer(file)
 
-            for item in self.playlist:
+            for item in self.playlist["items"]:
                 name = item["track"]["name"]
 
                 artists = []
