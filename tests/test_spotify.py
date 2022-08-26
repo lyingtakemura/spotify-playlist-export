@@ -1,5 +1,3 @@
-from io import StringIO
-
 import pytest
 from spotify import Spotify
 
@@ -10,17 +8,13 @@ def spotify():
     return spotify
 
 
-urls = [
-        ("https://open.spotify.com/playlist/qqqqqqqq?si=qqqqqqqq", "qqqqqqqq"),
-        ("https://open.spotify.com/playlist/qqqqqqqqqq", "qqqqqqqqqq"),
-        ("https://open.spotify.com/playlist/000000000000", "000000000000"),
-        ("https://open.spotify.com/playlist/0000000?si=0000000", "0000000")
-    ]
+playlist_urls = [
+    ("https://open.spotify.com/playlist/60S2Vw5q3DPjrYMbLezJa3?si=7c1573053a35455e"),
+    ("https://open.spotify.com/playlist/60S2Vw5q3DPjrYMbLezJa3"),
+]
 
-
-@pytest.mark.parametrize("url, expected", urls)
-def test_parse_playlist_id(spotify, mocker, url, expected):
-    playlist_url = StringIO(url)
-    mocker.patch('sys.stdin', playlist_url)
-    spotify._parse_playlist_id()
-    assert spotify.playlist_id == expected
+@pytest.mark.parametrize("url", playlist_urls)
+def test_get_playlist_by_url(spotify, mocker, url):
+    mocker.patch('builtins.input', lambda _: url)
+    spotify.get_playlist_by_url()
+    assert "items" in spotify.playlist.keys()
