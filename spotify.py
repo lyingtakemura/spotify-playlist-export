@@ -68,6 +68,12 @@ class Spotify:
                 )
                 response = requests.get(url, headers=self.headers)
                 self.playlist = response.json()
+
+                # with open("temp.json", "w") as f:
+                # import json
+                #   q = json.dumps(self.playlist.keys(), indent=4)
+                #   f.writelines(self.playlist.keys())
+                
                 # raise HTTPError if response returned an error status code
                 response.raise_for_status()
                 break
