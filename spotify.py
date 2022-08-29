@@ -95,12 +95,6 @@ class Spotify:
                 print("ERROR: {}".format(error))
 
     def export_to_csv(self) -> None:
-        # DEBUG
-        # with open("tmp.json", "w") as file:
-        #     import json
-        #     _ = json.dumps(self.playlist, indent=4)
-        #     file.write(_)
-
         with open("playlist.csv", "w") as file:
             writer = csv.writer(file)
 
