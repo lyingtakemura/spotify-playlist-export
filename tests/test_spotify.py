@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from spotify import Spotify
 
@@ -29,3 +31,80 @@ def test_get_playlist_by_url(spotify, mocker, url):
         assert "track" in _.keys()
 
     assert len(spotify.playlist["items"]) == spotify.playlist["total"]
+
+
+def test_export_to_csv(spotify):
+    """
+    - assert file was created
+    - assert file size is same as expected
+    """
+    spotify.playlist = {
+        "items": [
+            {
+                "added_at": "2022-07-26T01:16:19Z",
+                "added_by": {
+                    "external_urls": {
+                        "spotify": "https://open.spotify.com/user/-"
+                    },
+                    "href": "https://api.spotify.com/v1/users/-",
+                    "id": "-",
+                    "type": "user",
+                    "uri": "spotify:user:-"
+                },
+                "track": {
+                    "album": {
+                        "album_type": "single",
+                        "artists": [
+                            {
+                                "external_urls": {
+                                    "spotify": "https://open.spotify.com/artist/-"
+                                },
+                                "href": "https://api.spotify.com/v1/artists/-",
+                                "id": "-",
+                                "name": "-",
+                                "type": "artist",
+                                "uri": "spotify:artist:-"
+                            }
+                        ],
+
+                        "external_urls": {
+                            "spotify": "https://open.spotify.com/album/-"
+                        },
+                        "href": "https://api.spotify.com/v1/albums/-",
+                        "id": "-",
+
+                        "name": "2077",
+                        "release_date": "2022-01-06",
+                        "release_date_precision": "day",
+                        "total_tracks": 1,
+                        "type": "album",
+                        "uri": "spotify:album:-"
+                    },
+                    "artists": [
+                        {
+                            "external_urls": {
+                                "spotify": "https://open.spotify.com/artist/-"
+                            },
+                            "href": "https://api.spotify.com/v1/artists/-",
+                            "id": "-",
+                            "name": "TEST_ARTIST_1",
+                            "type": "artist",
+                            "uri": "spotify:artist:-"
+                        }
+                    ],
+
+                    "disc_number": 1,
+                    "href": "https://api.spotify.com/v1/tracks/-",
+                    "id": "-",
+                    "name": "2077",
+                    "popularity": 56,
+                    "track_number": 1,
+                    "type": "track",
+                    "uri": "spotify:track:-"
+                },
+            }
+        ]
+    }
+    spotify.export_to_csv()
+    assert os.path.exists("./playlist.csv")
+    assert os.path.getsize("./playlist.csv") == 25  # should be 25 bytes
