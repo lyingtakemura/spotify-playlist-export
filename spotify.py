@@ -13,10 +13,6 @@ class Spotify:
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
-        self.playlist = {
-            "items": [],
-            "total": None
-        }
 
     @property
     def headers(self) -> dict:
@@ -53,6 +49,16 @@ class Spotify:
         )
         result = response.json()
         return result["access_token"]
+
+
+class Playlist(Spotify):
+    def __init__(self):
+        super().__init__()  # inherit all methods and properties of superclass
+
+        self.playlist = {
+            "items": [],
+            "total": None
+        }
 
     def get_playlist_by_url(self) -> dict:
         """
