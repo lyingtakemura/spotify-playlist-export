@@ -1,5 +1,6 @@
 import csv
 import os
+from abc import ABC, abstractmethod
 from base64 import b64encode
 
 import requests
@@ -8,24 +9,27 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class Spotify:
+class StreamingService(ABC):
+    @abstractmethod
+    def authenticate(self):
+        pass
+
+    @abstractmethod
+    def get_playlist(self):
+        pass
+
+
+class Spotify(StreamingService):
     def __init__(self):
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
-
-    @property
-    def headers(self) -> dict:
-        _ = {
-            "Authorization": "Bearer {}".format(
-                self.access_token
-            ),
-            "grant_type": "access_token"
+        self.playlist = {
+            "items": [],
+            "total": None
         }
-        return _
 
-    @property
-    def access_token(self) -> str:
+    def authenticate(self) -> str:
         """
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
@@ -50,17 +54,17 @@ class Spotify:
         result = response.json()
         return result["access_token"]
 
-
-class Playlist(Spotify):
-    def __init__(self):
-        super().__init__()  # inherit all methods and properties of superclass
-
-        self.playlist = {
-            "items": [],
-            "total": None
+    @property
+    def headers(self) -> dict:
+        _ = {
+            "Authorization": "Bearer {}".format(
+                self.authenticate()
+            ),
+            "grant_type": "access_token"
         }
+        return _
 
-    def get_playlist_by_url(self) -> dict:
+    def get_playlist(self) -> dict:
         """
         - stay in the loop until provided input can be parsed for playlist id
         - request spotify api for playlist with parsed id
