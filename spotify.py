@@ -1,3 +1,5 @@
+from ast import Pass
+from cgitb import reset
 import csv
 import os
 from abc import ABC, abstractmethod
@@ -17,6 +19,55 @@ class StreamingService(ABC):
     @abstractmethod
     def get_playlist(self):
         pass
+
+
+class ExportStrategy(ABC):
+    @abstractmethod
+    def export(self, list):
+        pass
+
+
+class ExportToCSVStrategy(ExportStrategy):
+    def export(self, items: list):
+        with open("playlist.csv", "w") as file:
+            writer = csv.writer(file)
+
+            for item in items:
+                name = item["track"]["name"]
+
+                artists = []
+                for artist in item["track"]["artists"]:
+                    artists.append(artist["name"])
+                artists = ", ".join(artists)
+
+                album = item["track"]["album"]["name"]
+
+                writer.writerow([name, artists, album])
+
+
+class ExportToJsonStrategy(ExportStrategy):
+    def export(self, items: list):
+        with open("playlist.json", "w") as file:
+            import json
+            result = []
+            for item in items:
+                obj = {
+                    "name": None,
+                    "artists": None,
+                    "album": None
+                }
+                obj["name"] = item["track"]["name"]
+
+                artists = []
+                for artist in item["track"]["artists"]:
+                    artists.append(artist["name"])
+                obj["artists"] = ", ".join(artists)
+
+                obj["album"] = item["track"]["album"]["name"]
+
+                result.append(obj)
+            result = json.dumps(result, indent=4)
+            file.writelines(result)
 
 
 class Spotify(StreamingService):
@@ -104,18 +155,5 @@ class Spotify(StreamingService):
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
-    def export_to_csv(self) -> None:
-        with open("playlist.csv", "w") as file:
-            writer = csv.writer(file)
-
-            for item in self.playlist["items"]:
-                name = item["track"]["name"]
-
-                artists = []
-                for artist in item["track"]["artists"]:
-                    artists.append(artist["name"])
-                artists = ", ".join(artists)
-
-                album = item["track"]["album"]["name"]
-
-                writer.writerow([name, artists, album])
+    def export_playlist(self, strategy: ExportStrategy) -> None:
+        return strategy.export(self.playlist["items"])
