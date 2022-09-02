@@ -1,6 +1,6 @@
-from spotify import ExportToCSVStrategy, ExportToJsonStrategy, Spotify
+from spotify import ExportToCSV, ExportToJSON, Spotify
 
 spotify = Spotify()
 spotify.get_playlist()
-spotify.export_playlist(ExportToCSVStrategy())
-spotify.export_playlist(ExportToJsonStrategy())
+spotify.export_playlist(ExportToCSV())
+spotify.export_playlist(ExportToJSON())

@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 from abc import ABC, abstractmethod
 from base64 import b64encode
@@ -21,13 +22,13 @@ class StreamingService(ABC):
 
 class ExportStrategy(ABC):
     @abstractmethod
-    def export(self, list):
+    def process(self, items: list):
         pass
 
 
-class ExportToCSVStrategy(ExportStrategy):
-    def export(self, items: list):
-        with open("playlist.csv", "w") as file:
+class ExportToCSV(ExportStrategy):
+    def process(self, items: list):
+        with open(os.getcwd() + "/playlists/playlist.csv", "w") as file:
             writer = csv.writer(file)
 
             for item in items:
@@ -41,12 +42,12 @@ class ExportToCSVStrategy(ExportStrategy):
                 album = item["track"]["album"]["name"]
 
                 writer.writerow([name, artists, album])
+            print("EXPORTED TO CSV...")
 
 
-class ExportToJsonStrategy(ExportStrategy):
-    def export(self, items: list):
-        with open("playlist.json", "w") as file:
-            import json
+class ExportToJSON(ExportStrategy):
+    def process(self, items: list):
+        with open(os.getcwd() + "/playlists/playlist.json", "w") as file:
             result = []
             for item in items:
                 obj = {
@@ -66,6 +67,7 @@ class ExportToJsonStrategy(ExportStrategy):
                 result.append(obj)
             result = json.dumps(result, indent=4)
             file.writelines(result)
+            print("EXPORTED TO JSON...")
 
 
 class Spotify(StreamingService):
@@ -78,6 +80,13 @@ class Spotify(StreamingService):
             "total": None
         }
 
+        # OUTPUT DIR SETUP
+        path = "{}/playlists/".format(os.getcwd())
+        if not os.path.exists(path):
+            os.mkdir(path)
+            print("OUTPUT DIR SETUP...")
+
+    @property
     def authenticate(self) -> str:
         """
         - encode client_id and client_secret to base64 string
@@ -106,9 +115,7 @@ class Spotify(StreamingService):
     @property
     def headers(self) -> dict:
         _ = {
-            "Authorization": "Bearer {}".format(
-                self.authenticate()
-            ),
+            "Authorization": "Bearer {}".format(self.authenticate),
             "grant_type": "access_token"
         }
         return _
@@ -154,4 +161,4 @@ class Spotify(StreamingService):
                 print("ERROR: {}".format(error))
 
     def export_playlist(self, strategy: ExportStrategy) -> None:
-        return strategy.export(self.playlist["items"])
+        return strategy.process(self.playlist["items"])
