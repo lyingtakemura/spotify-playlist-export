@@ -7,10 +7,13 @@ logging.basicConfig(format='%(asctime)s :: %(levelname)s :: %(funcName)s :: %(li
 
 
 def main():
-    spotify = Spotify()
-    spotify.get_playlist()
-    spotify.export_playlist(ExportToCSV())
-    spotify.export_playlist(ExportToJSON())
+    try:
+        spotify = Spotify()
+        spotify.get_playlist()
+        spotify.export_playlist(ExportToCSV())
+        spotify.export_playlist(ExportToJSON())
+    except KeyboardInterrupt:
+        print("\nINTERRUPTED")
 
 
 if __name__ == "__main__":
