@@ -129,5 +129,4 @@ dmypy.json
 .pyre/
 
 # Playlist
-playlist.csv
-playlist.json
+playlists/
