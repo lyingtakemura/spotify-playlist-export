@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from spotify import Spotify
+from spotify import ExportToCSV, Spotify
 
 
 @pytest.fixture
@@ -17,16 +17,16 @@ playlist_urls = [
 
 
 @pytest.mark.parametrize("url", playlist_urls)
-def test_get_playlist_by_url(spotify, mocker, url):
+def test_get_playlist(spotify, mocker, url):
     '''
     - mock playlist url as user input
-    - invoke get_playlist_by_url on spotify object fixture to make api request
+    - invoke get_playlist on spotify object fixture to make api request
     - set tracks total and their objects from response to spotify.playlist dict
     - assert track objects have expected key in it
     - assert playlist track objects quantity equals to expected total quantity
     '''
     mocker.patch('builtins.input', lambda _: url)
-    spotify.get_playlist_by_url()
+    spotify.get_playlist()
     for _ in spotify.playlist["items"]:
         assert "track" in _.keys()
 
@@ -105,6 +105,7 @@ def test_export_to_csv(spotify):
             }
         ]
     }
-    spotify.export_to_csv()
-    assert os.path.exists("./playlist.csv")
-    assert os.path.getsize("./playlist.csv") == 25  # should be 25 bytes
+    spotify.export_playlist(ExportToCSV())
+    path = os.getcwd() + "/playlists/playlist.csv"
+    assert os.path.exists(path)
+    assert os.path.getsize(path) == 25  # should be 25 bytes
