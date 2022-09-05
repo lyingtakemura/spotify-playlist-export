@@ -7,6 +7,8 @@ from base64 import b64encode
 import requests
 from dotenv import load_dotenv
 
+from utils import timeit
+
 load_dotenv()
 
 
@@ -160,5 +162,6 @@ class Spotify(StreamingService):
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
+    @timeit
     def export_playlist(self, strategy: ExportStrategy) -> None:
         return strategy.process(self.playlist["items"])
