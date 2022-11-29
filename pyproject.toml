@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "spotify-playlist-export"
+version = "0.1.0"
+description = ""
+authors = ["lyingtakemura <106205052+lyingtakemura@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "spotify_playlist_export"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.28.1"
+flake8 = "^6.0.0"
+pytest = "^7.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
