@@ -2,8 +2,11 @@ import logging
 
 from spotify import ExportToCSV, ExportToJSON, Spotify
 
-logging.basicConfig(format='%(asctime)s :: %(levelname)s :: %(funcName)s :: %(lineno)d \
-:: %(message)s', level=logging.DEBUG)
+logging.basicConfig(
+    format="%(asctime)s :: %(levelname)s :: %(funcName)s :: %(lineno)d \
+:: %(message)s",
+    level=logging.DEBUG,
+)
 
 
 def main():

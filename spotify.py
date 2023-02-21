@@ -52,11 +52,7 @@ class ExportToJSON(ExportStrategy):
         with open(os.getcwd() + "/playlists/playlist.json", "w") as file:
             result = []
             for item in items:
-                obj = {
-                    "name": None,
-                    "artists": None,
-                    "album": None
-                }
+                obj = {"name": None, "artists": None, "album": None}
                 obj["name"] = item["track"]["name"]
 
                 artists = []
@@ -77,10 +73,7 @@ class Spotify(StreamingService):
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
-        self.playlist = {
-            "items": [],
-            "total": None
-        }
+        self.playlist = {"items": [], "total": None}
 
         # OUTPUT DIR SETUP
         path = "{}/playlists/".format(os.getcwd())
@@ -99,17 +92,11 @@ class Spotify(StreamingService):
         b64string = b64encode(b64string)
         b64string = bytes.decode(b64string)
 
-        headers = {
-            "Authorization": "Basic {}".format(b64string)
-        }
-        data = {
-            "grant_type": "client_credentials"
-        }
+        headers = {"Authorization": "Basic {}".format(b64string)}
+        data = {"grant_type": "client_credentials"}
 
         response = requests.post(
-            "https://accounts.spotify.com/api/token",
-            headers=headers,
-            data=data
+            "https://accounts.spotify.com/api/token", headers=headers, data=data
         )
         result = response.json()
         return result["access_token"]
@@ -118,7 +105,7 @@ class Spotify(StreamingService):
     def headers(self) -> dict:
         _ = {
             "Authorization": "Bearer {}".format(self.authenticate),
-            "grant_type": "access_token"
+            "grant_type": "access_token",
         }
         return _
 
@@ -136,9 +123,7 @@ class Spotify(StreamingService):
                 playlist_id = playlist_url.split("/playlist/")[1]
                 playlist_id = playlist_id.split("?")[0]
 
-                url = "{}/playlists/{}/tracks/".format(
-                    self.url, playlist_id
-                )
+                url = "{}/playlists/{}/tracks/".format(self.url, playlist_id)
                 response = requests.get(url, headers=self.headers)
 
                 # raise HTTPError if request failed
