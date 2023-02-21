@@ -3,6 +3,7 @@ import json
 import os
 from abc import ABC, abstractmethod
 from base64 import b64encode
+from datetime import datetime
 
 import requests
 from dotenv import load_dotenv
@@ -10,16 +11,6 @@ from dotenv import load_dotenv
 from utils import timeit
 
 load_dotenv()
-
-
-class StreamingService(ABC):
-    @abstractmethod
-    def authenticate(self):
-        pass
-
-    @abstractmethod
-    def get_playlist(self):
-        pass
 
 
 class ExportStrategy(ABC):
@@ -30,7 +21,7 @@ class ExportStrategy(ABC):
 
 class ExportToCSV(ExportStrategy):
     def process(self, items: list):
-        with open(os.getcwd() + "/playlists/playlist.csv", "w") as file:
+        with open(os.getcwd() + _set_playlist_path() + ".csv", "w") as file:
             writer = csv.writer(file)
 
             for item in items:
@@ -49,7 +40,7 @@ class ExportToCSV(ExportStrategy):
 
 class ExportToJSON(ExportStrategy):
     def process(self, items: list):
-        with open(os.getcwd() + "/playlists/playlist.json", "w") as file:
+        with open(os.getcwd() + _set_playlist_path() + ".json", "w") as file:
             result = []
             for item in items:
                 obj = {"name": None, "artists": None, "album": None}
@@ -68,7 +59,13 @@ class ExportToJSON(ExportStrategy):
             print("EXPORTED TO JSON...")
 
 
-class Spotify(StreamingService):
+def _set_playlist_path():
+    now = datetime.now()
+    path = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
+    return "/playlists/{}".format(path)
+
+
+class Spotify:
     def __init__(self):
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
@@ -129,6 +126,9 @@ class Spotify(StreamingService):
                 # raise HTTPError if request failed
                 if not response.raise_for_status():
                     playlist = response.json()
+
+                # with open("temp.json", "w") as file:
+                #     json.dump(playlist, file, indent=4)
 
                 self.playlist["total"] = playlist["total"]
                 self.playlist["items"].extend(playlist["items"])
