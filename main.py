@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from spotify import ExportToCSV, ExportToJSON, Spotify
 
@@ -13,8 +14,13 @@ def main():
     try:
         spotify = Spotify()
         spotify.get_playlist()
-        spotify.export_playlist(ExportToCSV())
-        spotify.export_playlist(ExportToJSON())
+
+        if "--csv" in sys.argv:
+            spotify.export_playlist(ExportToCSV())
+
+        if "--json" in sys.argv:
+            spotify.export_playlist(ExportToJSON())
+
     except KeyboardInterrupt:
         print("\nINTERRUPTED")
 
