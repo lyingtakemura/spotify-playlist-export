@@ -2,14 +2,13 @@ import csv
 import json
 import logging
 import os
-import sys
 from abc import ABC, abstractmethod
 from base64 import b64encode
 
 import requests
 from dotenv import load_dotenv
 
-from utils import timeit, set_playlist_path
+from utils import timeit
 
 load_dotenv()
 logging.basicConfig(
@@ -53,12 +52,6 @@ class Spotify:
         self.client_secret = os.getenv("CLIENT_SECRET")
         self.playlist = {"items": [], "total": None}
 
-        # OUTPUT DIR SETUP
-        path = "{}/playlists/".format(os.getcwd())
-        if not os.path.exists(path):
-            os.mkdir(path)
-            print("OUTPUT DIR SETUP...")
-
     @property
     def authenticate(self) -> str:
         """
@@ -86,6 +79,19 @@ class Spotify:
             "grant_type": "access_token",
         }
         return _
+
+    @property
+    def playlist_filepath(self) -> str:
+        from datetime import datetime
+
+        path = "{}/playlists/".format(os.getcwd())
+        if not os.path.exists(path):
+            os.mkdir(path)
+            print("OUTPUT DIR SETUP...")
+
+        now = datetime.now()
+        path = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
+        return "/playlists/{}".format(path)
 
     def request_playlist(self) -> dict:
         """
@@ -143,7 +149,7 @@ class Spotify:
 
     @timeit
     def export_to_csv(self) -> None:
-        with open(os.getcwd() + set_playlist_path() + ".csv", "w") as file:
+        with open(os.getcwd() + self.playlist_filepath + ".csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows([item for item in self.playlist["items"]])
 
