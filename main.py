@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from base64 import b64encode
+from datetime import datetime
 
 import requests
 from dotenv import load_dotenv
@@ -22,10 +23,11 @@ class Spotify:
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
-        self.playlist = {"items": []}
+        self.playlist = []
 
     @property
     def authenticate(self) -> str:
+
         """
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
@@ -53,12 +55,9 @@ class Spotify:
 
     @property
     def playlist_filepath(self) -> str:
-        from datetime import datetime
-
         path = "{}/playlists/".format(os.getcwd())
         if not os.path.exists(path):
             os.mkdir(path)
-            print("OUTPUT DIR SETUP...")
 
         now = datetime.now()
         filename = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
@@ -81,32 +80,32 @@ class Spotify:
                 url = "{}/playlists/{}/tracks/".format(self.url, playlist_id)
                 response = requests.get(url, headers=self.headers)
 
-                # raise HTTPError if request failed
                 if not response.raise_for_status():
-                    playlist = response.json()
+                    response = response.json()
 
                 # with open("temp.json", "w") as file:
                 #     json.dump(playlist, file, indent=4)
 
-                self.playlist["items"].extend(playlist["items"])
+                self.playlist.extend(response["items"])
 
                 while True:
-                    if playlist["next"] is None:
+                    if response["next"] is None:
                         break
                     else:
-                        playlist = requests.get(
-                            playlist["next"], headers=self.headers
+                        response = requests.get(
+                            response["next"], headers=self.headers
                         ).json()
-                        self.playlist["items"].extend(playlist["items"])
+                        self.playlist.extend(response["items"])
+
                 break
             except IndexError:
-                print("ERROR: Invalid playlist URL")
+                print("ERROR: INVALID_URL")
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
     def parse_playlist(self) -> None:
         result = []
-        for item in self.playlist["items"]:
+        for item in self.playlist:
 
             artists = []
             for artist in item["track"]["artists"]:
@@ -115,18 +114,18 @@ class Spotify:
 
             track = (item["track"]["name"], artists, item["track"]["album"]["name"])
             result.append(track)
-        self.playlist["items"] = result
+        self.playlist = result
 
     @timeit
     def export_to_csv(self) -> None:
         with open(self.playlist_filepath + ".csv", "w") as file:
             writer = csv.writer(file)
-            writer.writerows([item for item in self.playlist["items"]])
+            writer.writerows([item for item in self.playlist])
 
     @timeit
     def export_to_json(self) -> None:
         result = []
-        for item in self.playlist["items"]:
+        for item in self.playlist:
             result.append({"name": item[0], "artists": item[1], "album": item[2]})
         result = json.dumps(result, indent=4)
 
