@@ -2,7 +2,6 @@ import csv
 import json
 import logging
 import os
-from abc import ABC, abstractmethod
 from base64 import b64encode
 
 import requests
@@ -18,39 +17,12 @@ logging.basicConfig(
 )
 
 
-class ExportStrategy(ABC):
-    @abstractmethod
-    def process(self, items: list):
-        pass
-
-
-class ExportToJSON(ExportStrategy):
-    def process(self, items: list):
-        with open(os.getcwd() + set_playlist_path() + ".json", "w") as file:
-            result = []
-            for item in items:
-                obj = {"name": None, "artists": None, "album": None}
-                obj["name"] = item["track"]["name"]
-
-                artists = []
-                for artist in item["track"]["artists"]:
-                    artists.append(artist["name"])
-                obj["artists"] = ", ".join(artists)
-
-                obj["album"] = item["track"]["album"]["name"]
-
-                result.append(obj)
-            result = json.dumps(result, indent=4)
-            file.writelines(result)
-            print("EXPORTED TO JSON...")
-
-
 class Spotify:
     def __init__(self):
         self.url = os.getenv("URL")
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
-        self.playlist = {"items": [], "total": None}
+        self.playlist = {"items": []}
 
     @property
     def authenticate(self) -> str:
@@ -66,9 +38,8 @@ class Spotify:
         headers = {"Authorization": "Basic {}".format(b64string)}
         data = {"grant_type": "client_credentials"}
 
-        response = requests.post(
-            "https://accounts.spotify.com/api/token", headers=headers, data=data
-        )
+        url = "https://accounts.spotify.com/api/token"
+        response = requests.post(url, headers=headers, data=data)
         result = response.json()
         return result["access_token"]
 
@@ -90,8 +61,8 @@ class Spotify:
             print("OUTPUT DIR SETUP...")
 
         now = datetime.now()
-        path = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
-        return "/playlists/{}".format(path)
+        filename = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
+        return "{}/{}".format(path, filename)
 
     def request_playlist(self) -> dict:
         """
@@ -117,7 +88,6 @@ class Spotify:
                 # with open("temp.json", "w") as file:
                 #     json.dump(playlist, file, indent=4)
 
-                self.playlist["total"] = playlist["total"]
                 self.playlist["items"].extend(playlist["items"])
 
                 while True:
@@ -141,17 +111,27 @@ class Spotify:
             artists = []
             for artist in item["track"]["artists"]:
                 artists.append(artist["name"])
-
             artists = ", ".join(artists)
+
             track = (item["track"]["name"], artists, item["track"]["album"]["name"])
             result.append(track)
         self.playlist["items"] = result
 
     @timeit
     def export_to_csv(self) -> None:
-        with open(os.getcwd() + self.playlist_filepath + ".csv", "w") as file:
+        with open(self.playlist_filepath + ".csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows([item for item in self.playlist["items"]])
+
+    @timeit
+    def export_to_json(self) -> None:
+        result = []
+        for item in self.playlist["items"]:
+            result.append({"name": item[0], "artists": item[1], "album": item[2]})
+        result = json.dumps(result, indent=4)
+
+        with open(self.playlist_filepath + ".json", "w") as file:
+            file.writelines(result)
 
 
 def main():
@@ -160,6 +140,7 @@ def main():
         spotify.request_playlist()
         spotify.parse_playlist()
         spotify.export_to_csv()
+        spotify.export_to_json()
 
         # if "--csv" in sys.argv:
         #     spotify.export_to_csv()
