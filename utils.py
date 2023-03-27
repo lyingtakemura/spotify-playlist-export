@@ -10,11 +10,3 @@ def timeit(func):
         return result
 
     return wrapper
-
-
-# def set_playlist_path():
-#     from datetime import datetime
-
-#     now = datetime.now()
-#     path = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
-#     return "/playlists/{}".format(path)
