@@ -53,14 +53,14 @@ class Spotify:
         }
         return _
 
-    @property
     def playlist_filepath(self) -> str:
         path = "{}/playlists/".format(os.getcwd())
         if not os.path.exists(path):
             os.mkdir(path)
 
-        now = datetime.now()
-        filename = "{}_{}".format(now.date(), now.time().replace(microsecond=0))
+        date = datetime.now().date()
+        time = datetime.now().time().replace(microsecond=0)
+        filename = "{}_{}".format(date, time)
         return "{}/{}".format(path, filename)
 
     def request_playlist(self) -> dict:
@@ -84,7 +84,7 @@ class Spotify:
                     response = response.json()
 
                 # with open("temp.json", "w") as file:
-                #     json.dump(playlist, file, indent=4)
+                #     json.dump(response, file, indent=4)
 
                 self.playlist.extend(response["items"])
 
@@ -112,13 +112,16 @@ class Spotify:
                 artists.append(artist["name"])
             artists = ", ".join(artists)
 
-            track = (item["track"]["name"], artists, item["track"]["album"]["name"])
+            name = item["track"]["name"]
+            album = item["track"]["album"]["name"]
+
+            track = (name, artists, album)
             result.append(track)
         self.playlist = result
 
     @timeit
     def export_to_csv(self) -> None:
-        with open(self.playlist_filepath + ".csv", "w") as file:
+        with open(self.playlist_filepath() + ".csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows([item for item in self.playlist])
 
@@ -129,7 +132,7 @@ class Spotify:
             result.append({"name": item[0], "artists": item[1], "album": item[2]})
         result = json.dumps(result, indent=4)
 
-        with open(self.playlist_filepath + ".json", "w") as file:
+        with open(self.playlist_filepath() + ".json", "w") as file:
             file.writelines(result)
 
 
