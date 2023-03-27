@@ -8,7 +8,7 @@ from main import Spotify
 @pytest.fixture(scope="module")
 def spotify():
     _ = Spotify()
-    with open("input.json") as file:
+    with open("test_input.json") as file:
         _.playlist = json.load(file)
         _.playlist = _.playlist["items"]
     return _
