@@ -1,2 +1,2 @@
-pytest tests.py
-pytest --cov=.
+- pytest tests.py
+- pytest --cov=.
