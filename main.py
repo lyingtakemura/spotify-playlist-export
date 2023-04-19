@@ -95,7 +95,7 @@ class Spotify:
 
                 break
             except IndexError:
-                print("=PROVIDED_WRONG_URL")
+                print("ERROR: PROVIDED URL IS INVALID")
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
