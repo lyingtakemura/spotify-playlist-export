@@ -27,7 +27,6 @@ class Spotify:
 
     @property
     def authenticate(self) -> str:
-
         """
         - encode client_id and client_secret to base64 string
         - request spotify api access_token by resulted base64 string
@@ -83,9 +82,6 @@ class Spotify:
                 if not response.raise_for_status():
                     response = response.json()
 
-                # with open("temp.json", "w") as file:
-                #     json.dump(response, file, indent=4)
-
                 self.playlist.extend(response["items"])
 
                 while True:
@@ -99,14 +95,13 @@ class Spotify:
 
                 break
             except IndexError:
-                print("ERROR: INVALID_URL")
+                print("=PROVIDED_WRONG_URL")
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
     def parse_playlist(self) -> None:
         result = []
         for item in self.playlist:
-
             artists = []
             for artist in item["track"]["artists"]:
                 artists.append(artist["name"])
@@ -143,13 +138,6 @@ def main():
         spotify.parse_playlist()
         spotify.export_to_csv()
         spotify.export_to_json()
-
-        # if "--csv" in sys.argv:
-        #     spotify.export_to_csv()
-
-        # if "--json" in sys.argv:
-        #     spotify.export_playlist(ExportToJSON())
-
     except KeyboardInterrupt:
         print("\nINTERRUPTED")
 
