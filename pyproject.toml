@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["lyingtakemura <106205052+lyingtakemura@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "spotify_playlist_export"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
