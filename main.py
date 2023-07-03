@@ -8,7 +8,7 @@ from datetime import datetime
 import requests
 from dotenv import load_dotenv
 
-from utils import timeit
+from time import perf_counter
 
 load_dotenv()
 logging.basicConfig(
@@ -16,6 +16,18 @@ logging.basicConfig(
 :: %(message)s",
     level=logging.DEBUG,
 )
+
+
+def benchmark(func):
+    def wrapper(*args, **kwargs):
+        start = perf_counter()
+        result = func(*args, **kwargs)
+        end = perf_counter()
+        time = end - start
+        print("{} RUN TOOK: {}".format(func.__name__.upper(), time))
+        return result
+
+    return wrapper
 
 
 class Spotify:
@@ -62,6 +74,7 @@ class Spotify:
         filename = "{}_{}".format(date, time)
         return "{}/{}".format(path, filename)
 
+    @benchmark
     def request_playlist(self) -> dict:
         """
         - stay in the loop until provided input can be parsed for playlist id
@@ -99,6 +112,7 @@ class Spotify:
             except requests.HTTPError as error:
                 print("ERROR: {}".format(error))
 
+    @benchmark
     def parse_playlist(self) -> None:
         result = []
         for item in self.playlist:
@@ -114,13 +128,11 @@ class Spotify:
             result.append(track)
         self.playlist = result
 
-    @timeit
     def export_to_csv(self) -> None:
         with open(self.playlist_filepath() + ".csv", "w") as file:
             writer = csv.writer(file)
             writer.writerows([item for item in self.playlist])
 
-    @timeit
     def export_to_json(self) -> None:
         result = []
         for item in self.playlist:
@@ -133,11 +145,11 @@ class Spotify:
 
 def main():
     try:
-        spotify = Spotify()
-        spotify.request_playlist()
-        spotify.parse_playlist()
-        spotify.export_to_csv()
-        spotify.export_to_json()
+        _ = Spotify()
+        _.request_playlist()
+        _.parse_playlist()
+        _.export_to_csv()
+        _.export_to_json()
     except KeyboardInterrupt:
         print("\nINTERRUPTED")
 
