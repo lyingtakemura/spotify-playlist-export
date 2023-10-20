@@ -16,6 +16,7 @@ logging.basicConfig(
 
 playlist = []
 urls = []
+PLAYLIST_ID = ""
 
 
 def authenticate() -> dict:
@@ -69,7 +70,7 @@ def parse_playlist(session, url):
 
 def main():
     get_playlist_urls(
-        session, "https://api.spotify.com/v1/playlists/5DwaX2jFVl1RGpxBZiNHxf/tracks/"
+        session, "https://api.spotify.com/v1/playlists/{}/tracks/".format(PLAYLIST_ID)
     )
     for url in urls:
         parse_playlist(session, url)

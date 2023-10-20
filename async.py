@@ -17,6 +17,7 @@ logging.basicConfig(
 
 urls = []
 result = []
+PLAYLIST_ID = ""
 
 
 async def authenticate():
@@ -64,7 +65,7 @@ async def main():
     async with aiohttp.ClientSession(headers=await authenticate()) as session:
         await get_playlist_urls(
             session,
-            "https://api.spotify.com/v1/playlists/5DwaX2jFVl1RGpxBZiNHxf/tracks/",
+            "https://api.spotify.com/v1/playlists/{}/tracks/".format(PLAYLIST_ID),
         )
         await asyncio.gather(*[parse_playlist(session, url) for url in urls])
 
