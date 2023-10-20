@@ -15,8 +15,7 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
-urls = []
-result = []
+URLS = []
 PLAYLIST_ID = ""
 
 
@@ -32,10 +31,10 @@ async def authenticate():
 
         url = "https://accounts.spotify.com/api/token"
         async with session.post(url, headers=headers, data=data) as response:
-            result = await response.json()
+            response = await response.json()
 
         return {
-            "Authorization": "Bearer {}".format(result["access_token"]),
+            "Authorization": "Bearer {}".format(response["access_token"]),
             "grant_type": "access_token",
         }
 
@@ -48,17 +47,16 @@ async def get_playlist_urls(session, url):
         if not data["next"]:
             break
 
-        urls.append(data["next"])
+        URLS.append(data["next"])
         url = data["next"]
 
 
 async def parse_playlist(session, url):
     async with session.get(url) as response:
-        data = await response.json()
+        response = await response.json()
 
         with open("ASYNC_RESULT.json", "a") as file:
-            result = json.dumps(data["items"], indent=4)
-            file.writelines(result)
+            file.writelines(json.dumps(response["items"], indent=4))
 
 
 async def main():
@@ -67,7 +65,7 @@ async def main():
             session,
             "https://api.spotify.com/v1/playlists/{}/tracks/".format(PLAYLIST_ID),
         )
-        await asyncio.gather(*[parse_playlist(session, url) for url in urls])
+        await asyncio.gather(*[parse_playlist(session, url) for url in URLS])
 
 
 if __name__ == "__main__":

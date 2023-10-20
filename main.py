@@ -14,15 +14,14 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
-playlist = []
-urls = []
+URLS = []
 PLAYLIST_ID = ""
 
 
 def authenticate() -> dict:
     """
     - encode client_id and client_secret to base64 string
-    - request spotify api access_token by resulted base64 string
+    - request spotify api access_token by base64 string
     """
     b64string = "{}:{}".format(os.getenv("CLIENT_ID"), os.getenv("CLIENT_SECRET"))
     b64string = b64string.encode("ASCII")
@@ -33,10 +32,9 @@ def authenticate() -> dict:
     data = {"grant_type": "client_credentials"}
 
     url = "https://accounts.spotify.com/api/token"
-    response = requests.post(url, headers=headers, data=data)
-    result = response.json()
+    response = requests.post(url, headers=headers, data=data).json()
     return {
-        "Authorization": "Bearer {}".format(result["access_token"]),
+        "Authorization": "Bearer {}".format(response["access_token"]),
         "grant_type": "access_token",
     }
 
@@ -49,30 +47,27 @@ def session():
 
 def get_playlist_urls(session, url):
     while True:
-        response = session().get(url)
-        data = response.json()
+        response = session().get(url).json()
 
-        if not data["next"]:
+        if not response["next"]:
             break
 
-        urls.append(data["next"])
-        url = data["next"]
+        URLS.append(response["next"])
+        url = response["next"]
 
 
 def parse_playlist(session, url):
-    response = session().get(url)
-    data = response.json()
+    response = session().get(url).json()
 
     with open("SYNC_RESULT.json", "a") as file:
-        result = json.dumps(data["items"], indent=4)
-        file.writelines(result)
+        file.writelines(json.dumps(response["items"], indent=4))
 
 
 def main():
     get_playlist_urls(
         session, "https://api.spotify.com/v1/playlists/{}/tracks/".format(PLAYLIST_ID)
     )
-    for url in urls:
+    for url in URLS:
         parse_playlist(session, url)
 
 
