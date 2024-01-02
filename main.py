@@ -58,7 +58,6 @@ def get_playlist_urls(session, url):
 
 def parse_playlist(session, url):
     response = session().get(url).json()
-
     with open("SYNC_RESULT.json", "a") as file:
         file.writelines(json.dumps(response["items"], indent=4))
 
@@ -67,6 +66,7 @@ def main():
     get_playlist_urls(
         session, "https://api.spotify.com/v1/playlists/{}/tracks/".format(PLAYLIST_ID)
     )
+
     for url in URLS:
         parse_playlist(session, url)
 
