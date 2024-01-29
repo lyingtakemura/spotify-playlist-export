@@ -70,8 +70,9 @@ async def main():
 
 if __name__ == "__main__":
     start = perf_counter()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    # loop = asyncio.get_event_loop()
+    # loop.run_until_complete(main())
+    asyncio.run(main())
     end = perf_counter()
     time = end - start
     print("ASYNC RUN TOOK: {}".format(time))
