@@ -52,4 +52,4 @@ if __name__ == "__main__":
     main()
     end = perf_counter()
     time = end - start
-    print("SYNC RUN TOOK: {}".format(time))
+    print(f"SYNC RUN TOOK: {time}")

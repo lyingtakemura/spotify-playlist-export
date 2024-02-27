@@ -54,4 +54,4 @@ if __name__ == "__main__":
     asyncio.run(main())
     end = perf_counter()
     time = end - start
-    print("ASYNC RUN TOOK: {}".format(time))
+    print(f"ASYNC RUN TOOK: {time}")
