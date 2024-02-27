@@ -6,7 +6,7 @@ authors = ["lyingtakemura <106205052+lyingtakemura@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 requests = "^2.31.0"
 python-dotenv = "^1.0.0"
 aiohttp = "^3.9.1"
