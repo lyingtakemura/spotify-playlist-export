@@ -19,7 +19,6 @@ logging.basicConfig(
 
 playlist_id = os.getenv("PLAYLIST_ID")
 urls = [f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks/"]
-
 client = httpx.AsyncClient(headers=get_headers())
 results = []
 
