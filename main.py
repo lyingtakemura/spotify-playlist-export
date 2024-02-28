@@ -24,26 +24,32 @@ results = []
 
 
 def get_playlist_urls(url: str = urls[0]):
-    response = client.get(url)
-    response = response.json()
+    try:
+        response = client.get(url)
+        response = response.json()
 
-    if response["next"]:
-        urls.append(response["next"])
-        get_playlist_urls(response["next"])
+        if response["next"]:
+            urls.append(response["next"])
+            get_playlist_urls(response["next"])
+    except Exception as e:
+        print(e)
 
 
 def parse_playlist():
-    for url in urls:
-        response = client.get(url).json()["items"]
+    try:
+        for url in urls:
+            response = client.get(url).json()["items"]
 
-        for item in response:
-            results.append(
-                {
-                    "album": item["track"]["album"]["name"],
-                    "artists": item["track"]["artists"][0]["name"],
-                    "name": item["track"]["name"],
-                }
-            )
+            for item in response:
+                results.append(
+                    {
+                        "album": item["track"]["album"]["name"],
+                        "artists": item["track"]["artists"][0]["name"],
+                        "name": item["track"]["name"],
+                    }
+                )
+    except Exception as e:
+        print(e)
 
 
 def main():
